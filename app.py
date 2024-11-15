@@ -8,7 +8,7 @@ from PIL import Image
 import pandas as pd
 from random import randrange
 from io import BytesIO
-
+#uzgarish
 # API kalitlari
 OBJECT_DETECTION_API_URL = "https://api.api-ninjas.com/v1/objectdetection"
 # API kalitlari
