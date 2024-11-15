@@ -11,7 +11,7 @@ from io import BytesIO
 
 # API kalitlari
 OBJECT_DETECTION_API_URL = "https://api.api-ninjas.com/v1/objectdetection"
-OBJEC# API kalitlari
+# API kalitlari
 OBJECT_DETECTION_API_URL = "https://api.api-ninjas.com/v1/objectdetection"
 OBJECT_DETECTION_API_TOKEN = "BBmkbdXKOWYZHpDRy76UFw==8UmOG7IHI9XryWjO"
 REMOVE_BG_API_URL = "https://api.remove.bg/v1.0/removebg"
