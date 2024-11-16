@@ -1,4 +1,4 @@
-# uzgarish 4
+# o'zgarish 5
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
 import requests
@@ -36,7 +36,6 @@ if menu == "Tasvirlarni aniqlash":
 
     if image_file:
         try:
-            # Tasvirni ochishda xatoliklarni ushlaymiz
             image = Image.open(image_file)
         except UnidentifiedImageError:
             st.error("Fayl tasvir formati sifatida aniqlanmadi. Iltimos, boshqa fayl yuklang.")
@@ -81,14 +80,25 @@ if menu == "Tasvirlarni aniqlash":
                             ax.add_patch(rect)
                             ax.text(x1, y1 - 10, f'{label.capitalize()} ({x1}, {y1})', color='red', fontsize=8)
 
+                        # Rasmni yuklab olish uchun PNG formatida saqlaymiz
+                        buf = io.BytesIO()
+                        fig.savefig(buf, format='png', bbox_inches='tight')
+                        buf.seek(0)
+
                         st.pyplot(fig, use_container_width=True)
+                        st.download_button(
+                            label="📥 Annotatsiya qilingan rasmni yuklab olish",
+                            data=buf,
+                            file_name="annotated_image.png",
+                            mime="image/png"
+                        )
 
 elif menu == "Orqa fonni olib tashlash":
-    st.markdown("# :sparkles[Orqa fonni olib tashlash]")
-    uploaded_file = st.file_uploader("Rasm yuklang", type=['jpg', 'jpeg', 'png'])
+    st.markdown("# :rainbow[Orqa fonni olib tashlash]")
+    st.markdown("> :green[Rasmni ushbu qismga yuklang]")
+    uploaded_file = st.file_uploader("Rasm yuklang", type=['jpg', 'jpeg', 'png', 'jfif', 'webp'])
     if uploaded_file:
         try:
-            # Faylni ochamiz va xatolikni tekshiramiz
             image = Image.open(uploaded_file)
         except UnidentifiedImageError:
             st.error("Fayl tasvir sifatida aniqlanmadi. Iltimos, boshqa fayl yuklang.")
@@ -102,6 +112,17 @@ elif menu == "Orqa fonni olib tashlash":
                     byte_stream.seek(0)
                     output = remove(byte_stream.read())
                     result_image = Image.open(io.BytesIO(output))
+
+                    buf = io.BytesIO()
+                    result_image.save(buf, format="PNG")
+                    buf.seek(0)
+
                     st.image(result_image, caption="Orqa foni olib tashlangan tasvir", use_column_width=True)
+                    st.download_button(
+                        label="📥 Orqa foni olib tashlangan rasmni yuklab olish",
+                        data=buf,
+                        file_name="removed_bg_image.png",
+                        mime="image/png"
+                    )
                 except Exception as e:
                     st.error(f"Xatolik: {e}")
