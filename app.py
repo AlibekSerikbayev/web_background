@@ -1,4 +1,4 @@
-# o'zgarish 5
+# o'zgarish 6
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
 import requests
@@ -87,9 +87,9 @@ if menu == "Tasvirlarni aniqlash":
 
                         st.pyplot(fig, use_container_width=True)
                         st.download_button(
-                            label="📥 Annotatsiya qilingan rasmni yuklab olish",
+                            label="📥 Aniqlangan rasmni yuklab olish",
                             data=buf,
-                            file_name="annotated_image.png",
+                            file_name="aniqlangan_rasm.png",
                             mime="image/png"
                         )
 
@@ -121,7 +121,7 @@ elif menu == "Orqa fonni olib tashlash":
                     st.download_button(
                         label="📥 Orqa foni olib tashlangan rasmni yuklab olish",
                         data=buf,
-                        file_name="removed_bg_image.png",
+                        file_name="orqa_fonsiz_rasm.png",
                         mime="image/png"
                     )
                 except Exception as e:
