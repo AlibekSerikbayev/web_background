@@ -63,6 +63,7 @@ pytz==2024.2
 PyYAML==6.0.2
 referencing==0.35.1
 requests==2.32.3
+rembg==2.0.36
 rich==13.9.2
 rpds-py==0.20.0
 scikit-learn==1.5.2
