@@ -1,4 +1,4 @@
-# uzgarish 9
+# uzgarish 10
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
 import requests
@@ -103,6 +103,9 @@ elif menu == "Orqa fonni olib tashlash":
     # O'lchamlar ro'yxatini qo'shamiz
     aspect_ratio = st.selectbox("Rasm o'lchamini tanlang", ["3x4", "3.5x4.5", "9x6", "6x9"])
 
+    # Yangi fon rangini tanlash
+    background_color = st.selectbox("Orqa fon rangini tanlang", ["Oq", "Ko'k"])
+
     if uploaded_file:
         try:
             image = Image.open(uploaded_file)
@@ -131,17 +134,26 @@ elif menu == "Orqa fonni olib tashlash":
                     elif aspect_ratio == "6x9":
                         result_image = result_image.resize((600, 900))
 
+                    # Yangi fonni tanlangan rangga to'ldiramiz
+                    if background_color == "Oq":
+                        background = Image.new("RGBA", result_image.size, (255, 255, 255, 255))  # Oq fon
+                    else:
+                        background = Image.new("RGBA", result_image.size, (0, 0, 255, 255))  # Ko'k fon
+
+                    # Rasmni orqa fon bilan birlashtiramiz
+                    background.paste(result_image, (0, 0), result_image.convert("RGBA").split()[3])  # Alfa kanalini qo'llash
+
                     buf = io.BytesIO()
-                    result_image.save(buf, format="PNG")
+                    background.save(buf, format="PNG")
                     buf.seek(0)
 
-                    st.image(result_image, caption="Orqa foni olib tashlangan tasvir", use_column_width=True)
+                    st.image(background, caption="Orqa foni olib tashlangan va yangi fon bilan tasvir", use_column_width=True)
 
                     # Rasmni yuklab olish
                     st.download_button(
-                        label="📥 Orqa foni olib tashlangan rasmni yuklab olish",
+                        label="📥 Orqa foni olib tashlangan va yangi fonli rasmni yuklab olish",
                         data=buf,
-                        file_name="orqa_fonsiz_rasm.png",
+                        file_name="orqa_fonsiz_yangi_fonli_rasm.png",
                         mime="image/png"
                     )
                 except Exception as e:
