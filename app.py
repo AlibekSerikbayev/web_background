@@ -1,4 +1,4 @@
-# o'zgarish 6
+# uzgarish 9
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
 import requests
@@ -97,7 +97,12 @@ if menu == "Tasvirlarni aniqlash":
 elif menu == "Orqa fonni olib tashlash":
     st.markdown("# :rainbow[Orqa fonni olib tashlash]")
     st.markdown("> :green[Rasmni ushbu qismga yuklang]")
+
     uploaded_file = st.file_uploader("Rasm yuklang", type=['jpg', 'jpeg', 'png', 'jfif', 'webp'])
+
+    # O'lchamlar ro'yxatini qo'shamiz
+    aspect_ratio = st.selectbox("Rasm o'lchamini tanlang", ["3x4", "3.5x4.5", "9x6", "6x9"])
+
     if uploaded_file:
         try:
             image = Image.open(uploaded_file)
@@ -105,6 +110,8 @@ elif menu == "Orqa fonni olib tashlash":
             st.error("Fayl tasvir sifatida aniqlanmadi. Iltimos, boshqa fayl yuklang.")
         else:
             st.image(image, caption="Dastlabki tasvir", use_column_width=True)
+
+            # Orqa fonni olib tashlash
             with st.spinner("Orqa fon olib tashlanmoqda..."):
                 try:
                     # Rasmni PNG formatiga aylantirib yuboramiz
@@ -114,11 +121,23 @@ elif menu == "Orqa fonni olib tashlash":
                     output = remove(byte_stream.read())
                     result_image = Image.open(io.BytesIO(output))
 
+                    # O'lchamlarni tanlangan qiymatga moslashtiramiz
+                    if aspect_ratio == "3x4":
+                        result_image = result_image.resize((300, 400))
+                    elif aspect_ratio == "3.5x4.5":
+                        result_image = result_image.resize((350, 450))
+                    elif aspect_ratio == "9x6":
+                        result_image = result_image.resize((900, 600))
+                    elif aspect_ratio == "6x9":
+                        result_image = result_image.resize((600, 900))
+
                     buf = io.BytesIO()
                     result_image.save(buf, format="PNG")
                     buf.seek(0)
 
                     st.image(result_image, caption="Orqa foni olib tashlangan tasvir", use_column_width=True)
+
+                    # Rasmni yuklab olish
                     st.download_button(
                         label="📥 Orqa foni olib tashlangan rasmni yuklab olish",
                         data=buf,
