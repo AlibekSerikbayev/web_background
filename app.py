@@ -1,45 +1,72 @@
-# File path: app.py
-
+# app.py
 import streamlit as st
+from streamlit.components.v1 import html
+from PIL import Image
+from rembg import remove
+import pandas as pd
 import requests
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-from PIL import Image
-import pandas as pd
 from random import randrange
-from io import BytesIO
 
-# API kalitlari
-OBJECT_DETECTION_API_URL = "https://api.api-ninjas.com/v1/objectdetection"
-OBJECT_DETECTION_API_TOKEN = "BBmkbdXKOWYZHpDRy76UFw==8UmOG7IHI9XryWjO"
-REMOVE_BG_API_URL = "https://api.remove.bg/v1.0/removebg"
-REMOVE_BG_API_KEY = "7CtBt2JdDVBZFQfQHgd9qouA"
+# Asosiy ilova sozlamalari
+st.set_page_config(page_title="Tasvirni qayta ishlash", layout="wide")
 
-# Bosh sahifa boshqaruvi
-st.sidebar.title("Navigatsiya")
-page = st.sidebar.radio(
-    "Sahifani tanlang:", 
-    ["Tasvirlarni aniqlash", "Orqa fonni olib tashlash"],
-    key="navigation_radio"  # Har bir `st.radio` uchun unikal kalit
-)
+# HTML/CSS menyu
+menu_html = """
+<style>
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+.navbar a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+.content {
+    padding: 16px;
+    margin-top: 50px; /* Adjust based on navbar height */
+}
+</style>
+<div class="navbar">
+  <a href="#tasvirlarni_aniqlash" onclick="setPage('Tasvirlarni aniqlash')">Tasvirlarni aniqlash</a>
+  <a href="#orqa_fon" onclick="setPage('Orqa fonni olib tashlash')">Orqa fonni olib tashlash</a>
+</div>
+<script>
+    let currentPage = 'Tasvirlarni aniqlash';
+    function setPage(page) {
+        currentPage = page;
+        const pageData = Streamlit.setComponentValue(page);
+    }
+</script>
+"""
 
-# Tasvirlarni aniqlash sahifasi
-if page == "Tasvirlarni aniqlash":
+# HTML menyuni ko'rsatish
+html(menu_html, height=70)
+
+# Foydalanuvchi tanlovini olish
+selected_page = st.experimental_get_query_params().get('page', ['Tasvirlarni aniqlash'])[0]
+
+# Har bir sahifa uchun funksiyalar
+def tasvirlarni_aniqlash():
     st.markdown("# :rainbow[Tasvirlarni aniqlash]")
-
-    def image_detect(image):
-        files = {'image': image}
-        headers = {'X-Api-Key': OBJECT_DETECTION_API_TOKEN}
-        try:
-            response = requests.post(OBJECT_DETECTION_API_URL, headers=headers, files=files)
-            if response.status_code == 200:
-                st.info("Dastur ishladi! Hammasi joyida.")
-                return response.json()
-            else:
-                return f"Xatolik: {response.status_code}, {response.text}"
-        except Exception as e:
-            return f"Xatolik: {e}"
-
     st.markdown("> :green[Rasmni ushbu qismga yuklang]")
     image_file = st.file_uploader("Aniqlanayotgan tasvirni yuklang", type=['jpg', 'png', 'webp', 'jfif'])
 
@@ -52,25 +79,37 @@ if page == "Tasvirlarni aniqlash":
                 row1, row2 = st.columns(2)
                 row1.image(image_file, caption='Dastlabki tasvir')
 
+                def image_detect(image):
+                    files = {'image': image}
+                    headers = {'X-Api-Key': f"{st.secrets['API_TOKEN']}"}
+                    try:
+                        response = requests.post(st.secrets['API_URL'], headers=headers, files=files)
+                        if response.status_code == 200:
+                            st.info("Dastur ishladi! Hammasi joyida.")
+                            return response.json()
+                        else:
+                            return f"Xatolik: {response.status_code}, {response.text}"
+                    except Exception as e:
+                        return f"Xatolik: {e}"
+
                 detect_result = image_detect(image_file)
                 if isinstance(detect_result, str):
                     row2.error(detect_result)
                 else:
-                    data = []
-                    for i in range(len(detect_result)):
-                        data.append({
-                            "labels": detect_result[i]['label'],
-                            'confidence': float(detect_result[i]['confidence'])
-                        })
-                    dataFrame = pd.DataFrame(data)
-                    row2.dataframe(dataFrame, use_container_width=True)
+                    data = [
+                        {
+                            "labels": item['label'],
+                            'confidence': float(item['confidence'])
+                        }
+                        for item in detect_result
+                    ]
+                    row2.dataframe(pd.DataFrame(data), use_container_width=True)
 
                     fig, ax = plt.subplots()
                     ax.imshow(image)
                     ax.axis('off')
-                    colors = ['#e14c2c', '#c87765', '#2aad95', '#2dd549', '#24a076', '#cae128', '#ee7b15',
-                              '#164bc4', '#6f25cc', '#9832be', '#f12f70', '#d82429', '#ead62d', '#60d41e', '#6aa549', '#16cb97']
-
+                    colors = ['#e14c2c', '#c87765', '#2aad95', '#2dd549', '#24a076', '#cae128', '#ee7b15', '#164bc4',
+                              '#6f25cc', '#9832be', '#f12f70', '#d82429', '#ead62d', '#60d41e', '#6aa549', '#16cb97']
                     for item in detect_result:
                         label = item['label']
                         x1 = int(item['bounding_box']['x1'])
@@ -82,45 +121,28 @@ if page == "Tasvirlarni aniqlash":
                         rect_height = y2 - y1
                         rect = patches.Rectangle((x1, y1), rect_width, rect_height, linewidth=1,
                                                   edgecolor=colors[randrange(len(colors))], facecolor='none')
+
                         ax.add_patch(rect)
                         ax.text(x1, y1 - 10, f'{label.capitalize()} ({x1}, {y1})', color='red', fontsize=8)
 
                     st.pyplot(fig, use_container_width=True)
 
-# Orqa fonni olib tashlash sahifasi
-elif page == "Orqa fonni olib tashlash":
-    st.title("🎨 Rasm orqa fonini olib tashlash dasturi")
-    st.markdown("API orqali yuklangan rasmning orqa fonini olib tashlash")
-
-    image_file = st.file_uploader("Tasvirni yuklang (jpg, png, webp, yoki jfif formatlar)", type=['jpg', 'png', 'webp', 'jfif'], key="remove_bg_file_uploader")
-
-    if image_file:
-        image = Image.open(image_file)
+def orqa_fonni_olib_tashlash():
+    st.markdown("# :sparkles[Orqa fonni olib tashlash]")
+    uploaded_file = st.file_uploader("Rasm yuklang", type=['jpg', 'jpeg', 'png'])
+    if uploaded_file:
+        image = Image.open(uploaded_file)
         st.image(image, caption="Dastlabki tasvir", use_column_width=True)
-
-        st.markdown("### ⏳ Orqa fon olib tashlanmoqda...")
-        with st.spinner("Iltimos kuting..."):
+        with st.spinner("Orqa fon olib tashlanmoqda..."):
             try:
-                files = {"image_file": image_file}
-                headers = {"X-Api-Key": REMOVE_BG_API_KEY}
-
-                response = requests.post(REMOVE_BG_API_URL, files=files, headers=headers)
-
-                if response.status_code == 200:
-                    removed_bg_image = Image.open(BytesIO(response.content))
-                    st.success("✅ Orqa fon muvaffaqiyatli olib tashlandi!")
-                    st.image(removed_bg_image, caption="Orqa fon olib tashlangan tasvir", use_column_width=True)
-
-                    buf = BytesIO()
-                    removed_bg_image.save(buf, format="PNG")
-                    buf.seek(0)
-                    st.download_button(
-                        label="📥 Tasvirni yuklab olish",
-                        data=buf,
-                        file_name="removed_background.png",
-                        mime="image/png"
-                    )
-                else:
-                    st.error(f"Xato: {response.status_code}. {response.text}")
+                output = remove(image.tobytes())
+                result_image = Image.open(output)
+                st.image(result_image, caption="Orqa foni olib tashlangan tasvir", use_column_width=True)
             except Exception as e:
-                st.error(f"Xatolik yuz berdi: {e}")
+                st.error(f"Xatolik: {e}")
+
+# Tanlangan sahifani yuklash
+if selected_page == "Tasvirlarni aniqlash":
+    tasvirlarni_aniqlash()
+elif selected_page == "Orqa fonni olib tashlash":
+    orqa_fonni_olib_tashlash()
