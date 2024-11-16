@@ -17,6 +17,7 @@ menu = st.sidebar.radio("Menyu", ["Tasvirlarni aniqlash", "Orqa fonni olib tashl
 
 if menu == "Tasvirlarni aniqlash":
     st.markdown("# :rainbow[Tasvirlarni aniqlash]")
+    st.markdown("# :green[Iltimos 2mb gacha fayl yuklang !]")
 
     def image_detect(image):
         files = {'image': image}
