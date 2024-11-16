@@ -10,13 +10,13 @@ from random import randrange
 import io
 
 # Asosiy ilova sozlamalari
-st.set_page_config(page_title="Tasvirni qayta ishlash", layout="wide")
+st.set_page_config(page_title="🎨Tasvirni qayta ishlash", layout="wide")
 
 # Sidebar menyusi
 menu = st.sidebar.radio("Menyu", ["Tasvirlarni aniqlash", "Orqa fonni olib tashlash"])
 
 if menu == "Tasvirlarni aniqlash":
-    st.markdown("# :rainbow[Tasvirlarni aniqlash]")
+    st.markdown("🎯# :rainbow[Tasvirlarni aniqlash]")
 
     def image_detect(image):
         files = {'image': image}
@@ -93,7 +93,7 @@ if menu == "Tasvirlarni aniqlash":
                             mime="image/png"
                         )
 
-elif menu == "Orqa fonni olib tashlash":
+elif menu == "🪄 Orqa fonni olib tashlash":
     st.markdown("# :rainbow[Orqa fonni olib tashlash]")
     st.markdown("> :green[Rasmni ushbu qismga yuklang]")
     uploaded_file = st.file_uploader("Rasm yuklang", type=['jpg', 'jpeg', 'png', 'jfif', 'webp'])
