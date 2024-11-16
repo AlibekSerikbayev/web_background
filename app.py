@@ -1,4 +1,4 @@
-# uzgarish 10
+# uzgarish 12
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
 import requests
@@ -112,8 +112,6 @@ elif menu == "Orqa fonni olib tashlash":
         except UnidentifiedImageError:
             st.error("Fayl tasvir sifatida aniqlanmadi. Iltimos, boshqa fayl yuklang.")
         else:
-            st.image(image, caption="Dastlabki tasvir", use_column_width=True)
-
             # Orqa fonni olib tashlash
             with st.spinner("Orqa fon olib tashlanmoqda..."):
                 try:
