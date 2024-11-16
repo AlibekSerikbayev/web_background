@@ -138,7 +138,7 @@ elif menu == "Orqa fonni olib tashlash":
                     if background_color == "Oq":
                         background = Image.new("RGBA", result_image.size, (255, 255, 255, 255))  # Oq fon
                     else:
-                        background = Image.new("RGBA", result_image.size, (0, 0, 255, 255))  # Ko'k fon
+                        background = Image.new("RGB", result_image.size, (64, 224, 208))  # Ko'k fon
 
                     # Rasmni orqa fon bilan birlashtiramiz
                     background.paste(result_image, (0, 0), result_image.convert("RGBA").split()[3])  # Alfa kanalini qo'llash
